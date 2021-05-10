@@ -1,0 +1,79 @@
+<app-left-menu (addElement)="addElement($event)"></app-left-menu>
+<div id="builder-editor" class="builder-editor">
+  <div id="builder-mouse-hold" class="builder-mouse-hold ladi-hidden"></div>
+  <div
+    id="builder-group-tmp"
+    data-id="GROUP_TMP"
+    class="builder-group-tmp ladi-hidden"
+  >
+    <div class="ladi-resize ladi-n-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-s-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-w-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-e-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-ne-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-nw-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-se-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+    <div class="ladi-resize ladi-sw-resize">
+      <div class="ladi-resize-display"></div>
+    </div>
+  </div>
+  <div id="builder-container" class="builder-container ladi-wraper">
+    <ng-container *ngFor="let section of sectionArray; index as index">
+      <div
+        [id]="section.idSection"
+        [attr.data-id]="section.id"
+        [attr.data-index]="index"
+        class="ladi-section"
+        [style.height.px]="section.height"
+        appSection
+        (click)="setIndexSelect(index)"
+      >
+        <div class="ladi-section-background"></div>
+        <div class="ladi-overlay"></div>
+        <div class="ladi-container">
+          <ng-container *ngFor="let itemElement of element"> </ng-container>
+        </div>
+      </div>
+    </ng-container>
+
+    <div id="SECTION_POPUP" class="ladi-section" style="height: 0px">
+      <div class="ladi-section-background"></div>
+      <div class="ladi-overlay"></div>
+      <div class="ladi-container"></div>
+    </div>
+  </div>
+  <div id="builder-preview" class="ladi-hidden"></div>
+  <div
+    *ngIf="sectionArray.length == 0"
+    (click)="addNewSection()"
+    class="builder-button-no-section"
+    translate=""
+  >
+    Thêm mới Section
+  </div>
+  <div id="backdrop-popup" class="backdrop-popup"></div>
+  <div id="lightbox-screen" class="lightbox-screen"></div>
+  <div id="builder-rotate-text" class="builder-rotate-text ladi-hidden"></div>
+  <div id="builder-snap-grid" class="builder-grid ladi-hidden"></div>
+</div>
+
+<div #sectionResize class="ladi-resize ladi-s-resize">
+  <div class="ladi-button-add-section ladi-font-default">Thêm mới Section</div>
+  <div class="ladi-resize-display">
+    <i class="ladi-icon icon-cross-vertical ladi-resize-display-icon"></i>
+  </div>
+</div>
