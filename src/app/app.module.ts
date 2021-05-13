@@ -10,6 +10,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { RightMenuComponent } from './component/right-menu/right-menu.component';
 import { BuilderEditorComponent } from './component/builder-editor/builder-editor.component';
 import { SectionDirective } from './directives/section.directive';
+import { QuickEditorComponent } from './component/quick-editor/quick-editor.component';
+import { QuickEditorDirective } from './directives/quick-editor.directive';
 
 @NgModule({
   declarations: [
@@ -19,6 +21,8 @@ import { SectionDirective } from './directives/section.directive';
     RightMenuComponent,
     BuilderEditorComponent,
     SectionDirective,
+    QuickEditorComponent,
+    QuickEditorDirective,
   ],
   imports: [BrowserModule, BrowserAnimationsModule, DragDropModule],
   providers: [],

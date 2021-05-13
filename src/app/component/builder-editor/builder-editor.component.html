@@ -32,25 +32,28 @@
     </div>
   </div>
   <div id="builder-container" class="builder-container ladi-wraper">
-    <ng-container *ngFor="let section of sectionArray; index as index">
+    <ng-container *ngFor="let section of sectionArray; index as indexSection">
       <div
         [id]="section.idSection"
         [attr.data-id]="section.id"
-        [attr.data-index]="index"
+        [attr.data-index]="indexSection"
         class="ladi-section"
         [style.height.px]="section.height"
         appSection
-        (click)="setIndexSelect(index)"
+        (click)="setIndexSelect(indexSection)"
       >
         <div class="ladi-section-background"></div>
         <div class="ladi-overlay"></div>
         <div class="ladi-container">
-          <ng-container *ngFor="let itemElement of section.element">
+          <ng-container
+            *ngFor="let itemElement of section.element; index as indexElement"
+          >
             <ng-container [ngSwitch]="itemElement.elementType">
-              <ng-container *ngSwitchCase="TypeElement.BUTTON">
+              <ng-container *ngSwitchCase="MenuChildAddNew.BUTTON">
                 <div
                   appDragging
                   id="BUTTON2"
+                  [attr.data-id]="'BUTTON' + itemElement.id"
                   [style.width.px]="itemElement.width"
                   [style.height.px]="itemElement.height"
                   [style.top.px]="itemElement.top"
@@ -82,19 +85,19 @@
                           text-align: center;
                           line-height: 1.6;
                         "
-                      >
-                        MUA NGAY
-                      </p>
+                        [innerHTML]="itemElement.innerHtml"
+                        (blur)="blur($event, indexElement, indexSection)"
+                      ></p>
                     </div>
-                  </div>
-                  <!-- <div class="ladi-rotate">
-                    <i class="ladi-rotate-icon ladi-icon icon-refresh"></i>
                   </div>
                   <div
                     data-id="BUTTON2"
                     data-locked="false"
                     class="ladi-selected ladi-size"
                   ></div>
+                  <!-- <div class="ladi-rotate">
+                    <i class="ladi-rotate-icon ladi-icon icon-refresh"></i>
+                  </div>
                   <div data-locked="false" class="ladi-resize ladi-n-resize">
                     <div class="ladi-resize-display"></div>
                   </div>
@@ -121,7 +124,34 @@
                   </div> -->
                 </div>
               </ng-container>
-              ...
+              <ng-container *ngSwitchCase="MenuChildAddNew.TITLE">
+                <div
+                  appDragging
+                  id="HEADLINE3"
+                  [attr.data-id]="'HEADLINE' + itemElement.id"
+                  [style.width.px]="itemElement.width"
+                  [style.top.px]="itemElement.top"
+                  [style.left.px]="itemElement.left"
+                  class="ladi-element"
+                >
+                  <h3
+                    class="ladi-headline"
+                    style="
+                      color: rgb(0, 0, 0);
+                      font-size: 16px;
+                      line-height: 1.6;
+                    "
+                    [innerHTML]="itemElement.innerHtml"
+                    (blur)="blur($event, indexElement, indexSection)"
+                  ></h3>
+                  <div
+                    data-id="BUTTON2"
+                    data-locked="false"
+                    class="ladi-selected ladi-size"
+                  ></div>
+                </div>
+              </ng-container>
+
               <!-- <some-element *ngSwitchDefault>...</some-element> -->
             </ng-container>
           </ng-container>
@@ -156,3 +186,4 @@
     <i class="ladi-icon icon-cross-vertical ladi-resize-display-icon"></i>
   </div>
 </div>
+<app-quick-editor *ngIf="hasSelectedElement"></app-quick-editor>

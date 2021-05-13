@@ -39,10 +39,9 @@ export class SectionDirective implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._clearSub();
   }
-  // @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent) {
-  //   event.stopPropagation();
-  //   event.stopImmediatePropagation();
-  // }
+  @HostListener('focusout', ['$event']) onMouseUp(event: MouseEvent) {
+    console.log('focusout');
+  }
   @HostListener('click', ['$event']) onClickSection(event) {
     this._getSectionResizeBottom();
     this.renderer2.appendChild(
@@ -175,13 +174,15 @@ export class SectionDirective implements OnInit, OnDestroy {
 
   private _getSectionResizeBottom(): void {
     if (!this._sectionResizeBottom) {
-      this._sectionResizeBottom = this.createHtmlElementService.getSectionResizeBottom();
+      this._sectionResizeBottom =
+        this.createHtmlElementService.getSectionResizeBottom();
     }
   }
 
   private _getSectionSelectedInsert(): void {
     if (!this._getSectionSelectedInsert) {
-      this._sectionSelectedInsert = this.createHtmlElementService.getSectionSelectedInsert();
+      this._sectionSelectedInsert =
+        this.createHtmlElementService.getSectionSelectedInsert();
     }
   }
 }

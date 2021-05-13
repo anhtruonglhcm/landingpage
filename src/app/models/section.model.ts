@@ -1,4 +1,3 @@
-import { TypeElement } from '../constant/element.constant';
 import { ElementLadi } from './element.model';
 
 export interface ISection {

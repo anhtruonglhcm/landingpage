@@ -1,10 +1,11 @@
-import { TypeElement } from '../constant/element.constant';
+import { MenuChildAddNew } from '../constant/left-menu.constant';
 import { IStyleCommon } from './style-common.model';
 import { IStyleCustom } from './style-custom.model';
 
 export interface IWigetCommon {
   id?: number;
-  elementType?: TypeElement;
+  idSection: number;
+  elementType?: MenuChildAddNew;
   top?: number;
   left?: number;
   width?: number;

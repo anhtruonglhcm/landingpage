@@ -1,5 +1,3 @@
-import { TypeElement } from './element.constant';
-
 export enum MenuParrent {
   ADD_NEW = 1,
   SECTION,
@@ -31,7 +29,7 @@ export interface IMenuLeftChild {
   name: string;
   icon: string;
   datakey: MenuChildAddNew;
-  elementType?: TypeElement;
+  elementType?: MenuChildAddNew;
 }
 export interface IMenuLeft {
   dataKey: MenuParrent;
@@ -67,7 +65,7 @@ export const MenuLeft: IMenuLeft[] = [
         name: 'Nút bấm',
         datakey: MenuChildAddNew.BUTTON,
         icon: 'icon-button',
-        elementType: TypeElement.BUTTON,
+        elementType: MenuChildAddNew.BUTTON,
       },
       {
         name: 'video',
@@ -88,6 +86,7 @@ export const MenuLeft: IMenuLeft[] = [
         name: 'Tiêu đề',
         datakey: MenuChildAddNew.TITLE,
         icon: 'icon-text',
+        elementType: MenuChildAddNew.TITLE,
       },
     ],
   },
