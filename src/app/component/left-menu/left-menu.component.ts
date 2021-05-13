@@ -1,4 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { TypeElement } from 'src/app/constant/element.constant';
 import {
   IMenuLeft,
   MenuChildAddNew,
@@ -12,7 +13,7 @@ import {
 })
 export class LeftMenuComponent implements OnInit {
   public menuLeft: IMenuLeft[];
-  @Output() addElement = new EventEmitter<MenuChildAddNew>();
+  @Output() addElement = new EventEmitter<TypeElement>();
   constructor() {}
 
   ngOnInit(): void {
@@ -21,7 +22,7 @@ export class LeftMenuComponent implements OnInit {
   clickItem(index: number, event) {
     this.menuLeft[index].isSelected = !this.menuLeft[index].isSelected;
   }
-  clickChild(dataKey: MenuChildAddNew) {
-    this.addElement.emit(dataKey);
+  clickChild(elementType: TypeElement) {
+    this.addElement.emit(elementType);
   }
 }

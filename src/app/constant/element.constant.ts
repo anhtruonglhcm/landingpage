@@ -1,10 +1,11 @@
-export const BUTTON = 'BUTTON';
-export const HEADING = 'HEADING';
-export const IMAGE = 'IMAGE';
-export const PARAGRAPH = 'PARAGRAPH';
+// export const BUTTON = 'BUTTON';
+// export const HEADING = 'HEADING';
+// export const IMAGE = 'IMAGE';
+// export const PARAGRAPH = 'PARAGRAPH';
 
-export type TypeElement =
-  | typeof BUTTON
-  | typeof HEADING
-  | typeof IMAGE
-  | typeof PARAGRAPH;
+export enum TypeElement {
+  BUTTON = 1,
+  HEADING,
+  IMAGE,
+  PARAGRAPH,
+}

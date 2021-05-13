@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ISection } from 'src/app/models/section.model';
 import { MenuChildAddNew } from 'src/app/constant/left-menu.constant';
+import { TypeElement } from 'src/app/constant/element.constant';
 
 @Component({
   selector: 'app-builder-editor',
@@ -17,7 +18,7 @@ import { MenuChildAddNew } from 'src/app/constant/left-menu.constant';
 })
 export class BuilderEditorComponent implements OnInit, OnDestroy {
   public sectionArray: ISection[] = [];
-
+  public TypeElement = TypeElement;
   private _selectSelectedId: number | null;
   private _count: number;
   private _selectSelectedIndex: number | null;
@@ -55,10 +56,22 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
   }
   setIndexSelect(index) {
     this._selectSelectedIndex = index;
-    console.log(this._selectSelectedIndex);
   }
 
-  addElement(datakey: MenuChildAddNew) {
-    console.log(datakey);
+  addElement(elementType: TypeElement) {
+    switch (elementType) {
+      case TypeElement.BUTTON: {
+        this.sectionArray[this._selectSelectedIndex | 0].element.push({
+          id: this._count,
+          height: 40,
+          width: 160,
+          top: 192,
+          left: 400,
+          elementType: TypeElement.BUTTON,
+          innerHtml: 'MUA NGAY',
+        });
+        this._count++;
+      }
+    }
   }
 }

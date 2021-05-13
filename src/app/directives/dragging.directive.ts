@@ -29,7 +29,8 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     @Inject(DOCUMENT) private document: any
   ) {}
   @HostListener('document:click', ['$event'])
-  handleOutsideClick(event) {
+  handleOutsideClick(event: MouseEvent) {
+    event.stopPropagation();
     if (this.elementRef.nativeElement.contains(event.target)) {
       this.initDrag();
       this.render2.appendChild(this.element, this.wresize);

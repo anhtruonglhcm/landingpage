@@ -20,7 +20,7 @@
             [ngClass]="{ selected: itemMenu.isSelected }"
           >
             <ng-container *ngFor="let childItem of itemMenu.childMenu">
-              <li (click)="clickChild(childItem.datakey)">
+              <li (click)="clickChild(childItem.elementType)">
                 <i class="ladi-icon" [ngClass]="childItem.icon"></i
                 ><span>{{ childItem.name }}</span>
               </li>
