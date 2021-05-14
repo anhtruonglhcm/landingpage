@@ -14,6 +14,7 @@ import {
 export class QuickEditorComponent implements OnInit, OnChanges {
   @Input('quickEditorTop') quickEditorTop: number;
   @Input('quickEditorLeft') quickEditorLeft: number;
+  public isShowColor = false;
   constructor() {}
 
   ngOnInit(): void {}
@@ -24,5 +25,15 @@ export class QuickEditorComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log(this.quickEditorTop);
+  }
+  clickTextColor(event: MouseEvent) {
+    event.stopPropagation();
+    this.isShowColor = !this.isShowColor;
+  }
+  closeEditor() {
+    this.isShowColor = false;
+  }
+  setShowColor(isShow: boolean = false) {
+    this.isShowColor = isShow;
   }
 }

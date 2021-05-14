@@ -1,12 +1,13 @@
 import {
   Component,
   ElementRef,
+  NgZone,
   OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
 } from '@angular/core';
-import { Subject } from 'rxjs';
+import { interval, Subject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ISection } from 'src/app/models/section.model';
 import { MenuChildAddNew } from 'src/app/constant/left-menu.constant';
@@ -15,6 +16,7 @@ import {
   HEADLINE_DEFAULT,
 } from 'src/app/constant/element.constant';
 import { IWigetButton } from 'src/app/models/wiget-button.model';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-builder-editor',
@@ -27,6 +29,7 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
   public hasSelectedElement: boolean;
   public quickEditorTop = 0;
   public quickEditorLeft = 0;
+  public isDrag = true;
   // public TypeElement = TypeElement;
   public MenuChildAddNew = MenuChildAddNew;
   private _selectSelectedId: number | null;
@@ -37,7 +40,8 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
   @ViewChild('sectionResize') sectionResize: ElementRef;
   constructor(
     private commonService: CommonService,
-    private renderer2: Renderer2
+    private renderer2: Renderer2,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -66,7 +70,9 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
     //   (section) => section.id === id
     // );
   }
-
+  setIsDrag(isDrag: boolean) {
+    this.isDrag = isDrag;
+  }
   setPositionQuickEditor(top: number, left: number) {
     this.quickEditorTop = top;
     this.quickEditorLeft = left;

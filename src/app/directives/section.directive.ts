@@ -8,7 +8,7 @@ import {
   OnInit,
   Renderer2,
 } from '@angular/core';
-import { fromEvent, Subscription } from 'rxjs';
+import { fromEvent, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonService } from '../services/common.service';
 import { BuilderEditorComponent } from '../component/builder-editor/builder-editor.component';
@@ -24,6 +24,8 @@ export class SectionDirective implements OnInit, OnDestroy {
   private _sectionSelectedInsert: HTMLElement;
   private _clickAddSectionSub: Subscription;
   private _clickResizeSection: Subscription;
+  private _dragable: boolean;
+  private _subjectUnsub = new Subject();
   constructor(
     private el: ElementRef,
     @Inject(DOCUMENT) private document: any,
@@ -34,44 +36,59 @@ export class SectionDirective implements OnInit, OnDestroy {
   ) {}
   ngOnInit(): void {
     // this.initResize();
+    this._dragable = true;
+    this.commonService.isClickSection
+      .asObservable()
+      .pipe(takeUntil(this._subjectUnsub))
+      .subscribe((isClick: boolean) => {
+        this._dragable = isClick;
+      });
   }
 
   ngOnDestroy(): void {
     this._clearSub();
+    this._subjectUnsub.next();
+    this._subjectUnsub.complete();
+  }
+
+  setDragable(isDrag: boolean) {
+    this._dragable = isDrag;
   }
   @HostListener('focusout', ['$event']) onMouseUp(event: MouseEvent) {
     console.log('focusout');
   }
   @HostListener('click', ['$event']) onClickSection(event) {
-    this._getSectionResizeBottom();
-    this.renderer2.appendChild(
-      this.el.nativeElement,
-      this._sectionResizeBottom
-    );
-    const sectionId: number = Number(this.el.nativeElement.dataset.id);
-    this.builderEditorComponent.setSelectSelected(sectionId);
-    this.initResize();
-    const buttonAddSection = this.el.nativeElement.querySelectorAll(
-      '.ladi-button-add-section'
-    );
-    const resizeElement = this.el.nativeElement.querySelectorAll(
-      '.ladi-resize-display'
-    );
-    this._clickResizeSection = fromEvent<MouseEvent>(
-      resizeElement,
-      'click'
-    ).subscribe((event: MouseEvent) => {
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-    });
-    this._clickAddSectionSub = fromEvent<MouseEvent>(
-      buttonAddSection,
-      'click'
-    ).subscribe((event: MouseEvent) => {
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      this.builderEditorComponent.addNewSection();
-    });
+    if (this._dragable) {
+      this._getSectionResizeBottom();
+      this.renderer2.appendChild(
+        this.el.nativeElement,
+        this._sectionResizeBottom
+      );
+      const sectionId: number = Number(this.el.nativeElement.dataset.id);
+      this.builderEditorComponent.setSelectSelected(sectionId);
+      this.initResize();
+      const buttonAddSection = this.el.nativeElement.querySelectorAll(
+        '.ladi-button-add-section'
+      );
+      const resizeElement = this.el.nativeElement.querySelectorAll(
+        '.ladi-resize-display'
+      );
+      this._clickResizeSection = fromEvent<MouseEvent>(
+        resizeElement,
+        'click'
+      ).subscribe((event: MouseEvent) => {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      });
+      this._clickAddSectionSub = fromEvent<MouseEvent>(
+        buttonAddSection,
+        'click'
+      ).subscribe((event: MouseEvent) => {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        this.builderEditorComponent.addNewSection();
+      });
+    }
   }
 
   @HostListener('document:click', ['$event'])

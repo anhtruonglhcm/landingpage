@@ -4,21 +4,26 @@ import {
   ElementRef,
   HostListener,
   Inject,
+  Input,
   OnChanges,
   OnDestroy,
   OnInit,
   Renderer2,
   SimpleChanges,
 } from '@angular/core';
-import { fromEvent, Subscription } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { fromEvent, of, Subscription } from 'rxjs';
+import { concatMap, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 import { BuilderEditorComponent } from '../component/builder-editor/builder-editor.component';
-import { QuickEditorDirective } from './quick-editor.directive';
+import { QuickEditorComponent } from '../component/quick-editor/quick-editor.component';
+import { CommonService } from '../services/common.service';
+import { SectionDirective } from './section.directive';
 
 @Directive({
   selector: '[appDragging]',
+  providers: [QuickEditorComponent],
 })
 export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
+  @Input('isDrag') isDrag: boolean;
   private element: HTMLElement;
   private subscriptions: Subscription[] = [];
   private wresize: HTMLElement;
@@ -28,34 +33,47 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
   private _elementEditor: HTMLElement;
   private _elementHover: HTMLElement;
   private _elementSelected: HTMLElement;
+  private _sectionIsSelected: HTMLElement;
+  private _elemtnSectionSelected: HTMLElement;
 
   private _dataId: string;
   constructor(
     private elementRef: ElementRef,
     private render2: Renderer2,
     private builderEditorComponent: BuilderEditorComponent,
+    private quickEditorComponent: QuickEditorComponent,
+    private commonService: CommonService,
     @Inject(DOCUMENT) private document: any
   ) {}
 
   ngOnInit(): void {
     this.element = this.elementRef.nativeElement as HTMLElement;
     this._createElement();
-    // this.initDrag();
+    console.log('init');
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    throw new Error('Method not implemented.');
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
+  // @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent) {
+  //   event.stopPropagation();
+  //   this.commonService.isClickSection.next(true);
+  //   console.log('up');
+  // }
+  // @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent) {
+  //   event.stopPropagation();
+  //   this.commonService.isClickSection.next(false);
+  //   console.log('down');
+  // }
   @HostListener('click', ['$event']) onClickElement(event: MouseEvent) {
     event.stopPropagation();
-
+    this._ladiParentSelected(Number(this.element.dataset.sectionId) | 0);
     let left = Number(this.element.style.left.replace('px', '')) || 0;
     let top = Number(this.element.style.top.replace('px', '')) || 0;
     let height = Number(this.element.style.height.replace('px', '')) || 40;
     this.builderEditorComponent.setHasSelected(true);
     this.builderEditorComponent.setPositionQuickEditor(top - height - 10, left);
-    // let a = this.builderEditorComponent.quickEditor;
-    // debugger;
-    this.initDrag();
+    if (this.isDrag) {
+      this.initDrag();
+    }
+    // this.initDrag();
     this.render2.appendChild(this.element, this.wresize);
     this.render2.appendChild(this.element, this.eresize);
     this.render2.appendChild(this.element, this.selected);
@@ -74,25 +92,37 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     const drag$ = fromEvent<MouseEvent>(this.document, 'mousemove').pipe(
       takeUntil(dragEnd$)
     );
-    const dragStartTest$ = this.eleResize.map((ele) =>
-      fromEvent<MouseEvent>(
-        document.querySelectorAll(`.${ele}`),
-        'mousedown'
-      ).pipe(map((value) => ({ ele, value })))
-    );
-
-    // resize right
     let dragSub: Subscription;
     const dragStartSub = dragStart$.subscribe((event: MouseEvent) => {
+      event.stopPropagation();
       this.clearSub();
-      dragSub = drag$.subscribe((event: MouseEvent) => {
-        event.preventDefault();
-        const newWidth =
-          event.pageX - this.element.getBoundingClientRect().left;
-        this.render2.setStyle(this.element, 'width', newWidth + 'px');
-      });
+      dragSub = drag$
+        .pipe(
+          concatMap((value, index) =>
+            index === 0
+              ? of(value).pipe(
+                  tap(() => {
+                    this.builderEditorComponent.setHasSelected(false);
+                    this.commonService.isClickSection.next(false);
+                  })
+                )
+              : of(value)
+          )
+        )
+        .subscribe((event: MouseEvent) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const newWidth =
+            event.pageX - this.element.getBoundingClientRect().left;
+          this.render2.setStyle(this.element, 'width', newWidth + 'px');
+        });
 
-      dragEnd$.pipe(take(1)).subscribe(() => {
+      dragEnd$.pipe(take(1)).subscribe((event: MouseEvent) => {
+        event.stopPropagation();
+        this.builderEditorComponent.setHasSelected(true);
+        setTimeout(() => {
+          this.commonService.isClickSection.next(true);
+        }, 200);
         if (dragSub) {
           dragSub.unsubscribe();
         }
@@ -102,19 +132,40 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       });
     });
     const dragStartSubLeft = dragStartLeft$.subscribe((event: MouseEvent) => {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      event.preventDefault();
       this.clearSub();
       let original_width = Number(this.element.style.width.replace('px', ''));
       let original_x = this.element.getBoundingClientRect().left;
       let original_mouse_x = event.pageX;
-      dragSub = drag$.subscribe((event: MouseEvent) => {
-        event.preventDefault();
-        const width = original_width - (event.pageX - original_mouse_x);
-        const left = original_x + (event.pageX - original_mouse_x);
-        this.render2.setStyle(this.element, 'width', width + 'px');
-        this.render2.setStyle(this.element, 'left', left + 'px');
-      });
+      dragSub = drag$
+        .pipe(
+          concatMap((value, index) =>
+            index === 0
+              ? of(value).pipe(
+                  tap(() => {
+                    this.builderEditorComponent.setHasSelected(false);
+                  })
+                )
+              : of(value)
+          )
+        )
+        .subscribe((event: MouseEvent) => {
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          const width = original_width - (event.pageX - original_mouse_x);
+          const left = original_x + (event.pageX - original_mouse_x);
+          this.render2.setStyle(this.element, 'width', width + 'px');
+          this.render2.setStyle(this.element, 'left', left + 'px');
+        });
 
-      dragEnd$.pipe(take(1)).subscribe(() => {
+      dragEnd$.pipe(take(1)).subscribe((event: MouseEvent) => {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        this.builderEditorComponent.setHasSelected(true);
         if (dragSub) {
           dragSub.unsubscribe();
         }
@@ -130,6 +181,8 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       '.ladi-headline'
     )[0] as HTMLElement;
     this.render2.setAttribute(this._elementEditor, 'contenteditable', 'true');
+    this.builderEditorComponent.setIsDrag(false);
+    this.clearSub();
   }
   @HostListener('blur', ['$event']) onBlur(event: MouseEvent) {
     console.log('blur');
@@ -171,6 +224,10 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       }
       if (this._elementEditor) {
         this.render2.removeAttribute(this._elementEditor, 'contenteditable');
+        this.builderEditorComponent.setIsDrag(true);
+      }
+      if (this._elemtnSectionSelected) {
+        this.render2.removeChild(this._sectionIsSelected, this.selected);
       }
       this.builderEditorComponent.setHasSelected(false);
     }
@@ -197,14 +254,26 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       this.element.classList.add('free-dragging');
 
       // 4
-      dragSub = drag$.subscribe((event: MouseEvent) => {
-        event.preventDefault();
-        this.builderEditorComponent.setHasSelected(false);
-        currentX = event.clientX - initialX;
-        currentY = event.clientY - initialY;
-        this.render2.setStyle(this.element, 'top', currentY + 'px');
-        this.render2.setStyle(this.element, 'left', currentX + 'px');
-      });
+      dragSub = drag$
+        .pipe(
+          concatMap((value, index) =>
+            index === 0
+              ? of(value).pipe(
+                  tap(() => {
+                    this.quickEditorComponent.setShowColor(false);
+                    this.builderEditorComponent.setHasSelected(false);
+                  })
+                )
+              : of(value)
+          )
+        )
+        .subscribe((event: MouseEvent) => {
+          event.preventDefault();
+          currentX = event.clientX - initialX;
+          currentY = event.clientY - initialY;
+          this.render2.setStyle(this.element, 'top', currentY + 'px');
+          this.render2.setStyle(this.element, 'left', currentX + 'px');
+        });
     });
 
     // 5
@@ -212,7 +281,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       initialX = currentX;
       initialY = currentY;
       this.element.classList.remove('free-dragging');
-      this.builderEditorComponent.setHasSelected(false);
+      this.builderEditorComponent.setHasSelected(true);
       this.render2.removeStyle(this.element, 'cursor');
       if (dragSub) {
         dragSub.unsubscribe();
@@ -225,6 +294,21 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       dragSub,
       dragEndSub,
     ]);
+  }
+
+  private _ladiParentSelected(sectionIndex: number) {
+    this._sectionIsSelected = document.querySelectorAll('.ladi-section')[
+      sectionIndex
+    ] as HTMLElement;
+    if (!this._elemtnSectionSelected) {
+      let el = this.render2.createElement('div');
+      this.render2.addClass(el, 'ladi-parent-selected');
+      this._elemtnSectionSelected = el;
+    }
+    this.render2.appendChild(
+      this._sectionIsSelected,
+      this._elemtnSectionSelected
+    );
   }
 
   private _createElement() {

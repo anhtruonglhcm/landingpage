@@ -12,6 +12,7 @@ import { BuilderEditorComponent } from './component/builder-editor/builder-edito
 import { SectionDirective } from './directives/section.directive';
 import { QuickEditorComponent } from './component/quick-editor/quick-editor.component';
 import { QuickEditorDirective } from './directives/quick-editor.directive';
+import { ColorEditorComponent } from './component/quick-editor/color-editor/color-editor.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { QuickEditorDirective } from './directives/quick-editor.directive';
     SectionDirective,
     QuickEditorComponent,
     QuickEditorDirective,
+    ColorEditorComponent,
   ],
   imports: [BrowserModule, BrowserAnimationsModule, DragDropModule],
   providers: [],

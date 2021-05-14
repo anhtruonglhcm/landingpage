@@ -120,11 +120,7 @@
     </li>
     <!---->
     <!---->
-    <li
-      tooltip="Màu chữ"
-      ng-if="showEditText &amp;&amp; !showEditTextRange"
-      ng-click="clickTextColor($event)"
-    >
+    <li tooltip="Màu chữ" (click)="clickTextColor($event)">
       <i class="ladi-icon icon-text-color"></i>
     </li>
     <!---->
@@ -278,3 +274,7 @@
     </li>
   </ul>
 </div>
+<app-color-editor
+  *ngIf="isShowColor"
+  (closeEditor)="closeEditor()"
+></app-color-editor>
