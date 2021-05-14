@@ -3,6 +3,7 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -21,8 +22,11 @@ import { IWigetButton } from 'src/app/models/wiget-button.model';
   styleUrls: ['./builder-editor.component.scss'],
 })
 export class BuilderEditorComponent implements OnInit, OnDestroy {
+  @ViewChild('quickEditor', { static: true }) quickEditor: ElementRef;
   public sectionArray: ISection[] = [];
   public hasSelectedElement: boolean;
+  public quickEditorTop = 0;
+  public quickEditorLeft = 0;
   // public TypeElement = TypeElement;
   public MenuChildAddNew = MenuChildAddNew;
   private _selectSelectedId: number | null;
@@ -31,7 +35,10 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
   private _subjectOnDestroy: Subject<any> = new Subject();
   private _innerWidth: number;
   @ViewChild('sectionResize') sectionResize: ElementRef;
-  constructor(private commonService: CommonService) {}
+  constructor(
+    private commonService: CommonService,
+    private renderer2: Renderer2
+  ) {}
 
   ngOnInit(): void {
     this._count = 10;
@@ -58,6 +65,11 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
     // this._selectSelectedIndex = this.sectionArray.findIndex(
     //   (section) => section.id === id
     // );
+  }
+
+  setPositionQuickEditor(top: number, left: number) {
+    this.quickEditorTop = top;
+    this.quickEditorLeft = left;
   }
 
   setHeightSection(height: number) {

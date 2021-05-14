@@ -186,4 +186,9 @@
     <i class="ladi-icon icon-cross-vertical ladi-resize-display-icon"></i>
   </div>
 </div>
-<app-quick-editor *ngIf="hasSelectedElement"></app-quick-editor>
+<app-quick-editor
+  #quickEditor
+  [quickEditorTop]="quickEditorTop"
+  [quickEditorLeft]="quickEditorLeft"
+  [ngStyle]="{ display: hasSelectedElement ? 'block' : 'none' }"
+></app-quick-editor>

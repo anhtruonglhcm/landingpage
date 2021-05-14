@@ -47,12 +47,14 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
   }
   @HostListener('click', ['$event']) onClickElement(event: MouseEvent) {
     event.stopPropagation();
-    const quickEditor = document.querySelectorAll('.builder-quick-editor')[0];
+
     let left = Number(this.element.style.left.replace('px', '')) || 0;
     let top = Number(this.element.style.top.replace('px', '')) || 0;
+    let height = Number(this.element.style.height.replace('px', '')) || 40;
     this.builderEditorComponent.setHasSelected(true);
-    this.render2.setStyle(quickEditor, 'top', top);
-    this.render2.setStyle(quickEditor, 'left', left);
+    this.builderEditorComponent.setPositionQuickEditor(top - height - 10, left);
+    // let a = this.builderEditorComponent.quickEditor;
+    // debugger;
     this.initDrag();
     this.render2.appendChild(this.element, this.wresize);
     this.render2.appendChild(this.element, this.eresize);
@@ -193,11 +195,11 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       initialX = event.clientX - currentX;
       initialY = event.clientY - currentY;
       this.element.classList.add('free-dragging');
-      this.render2.setStyle(this.element, 'cursor', 'move');
+
       // 4
       dragSub = drag$.subscribe((event: MouseEvent) => {
         event.preventDefault();
-
+        this.builderEditorComponent.setHasSelected(false);
         currentX = event.clientX - initialX;
         currentY = event.clientY - initialY;
         this.render2.setStyle(this.element, 'top', currentY + 'px');
@@ -210,6 +212,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       initialX = currentX;
       initialY = currentY;
       this.element.classList.remove('free-dragging');
+      this.builderEditorComponent.setHasSelected(false);
       this.render2.removeStyle(this.element, 'cursor');
       if (dragSub) {
         dragSub.unsubscribe();
