@@ -11,8 +11,18 @@ import {
   Renderer2,
   SimpleChanges,
 } from '@angular/core';
-import { fromEvent, of, Subscription } from 'rxjs';
-import { concatMap, filter, map, take, takeUntil, tap } from 'rxjs/operators';
+import { fromEvent, Observable, of, Subscription } from 'rxjs';
+import {
+  concatMap,
+  filter,
+  map,
+  mergeMap,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+  throttleTime,
+} from 'rxjs/operators';
 import { BuilderEditorComponent } from '../component/builder-editor/builder-editor.component';
 import { QuickEditorComponent } from '../component/quick-editor/quick-editor.component';
 import { CommonService } from '../services/common.service';
@@ -36,6 +46,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
   private _sectionIsSelected: HTMLElement;
   private _elemtnSectionSelected: HTMLElement;
 
+  private _isDeleteResize = true;
   private _dataId: string;
   constructor(
     private elementRef: ElementRef,
@@ -73,6 +84,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     if (this.isDrag) {
       this.initDrag();
     }
+    this.builderEditorComponent.setElementSelected(this.element);
     // this.initDrag();
     this.render2.appendChild(this.element, this.wresize);
     this.render2.appendChild(this.element, this.eresize);
@@ -95,7 +107,6 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     let dragSub: Subscription;
     const dragStartSub = dragStart$.subscribe((event: MouseEvent) => {
       event.stopPropagation();
-      this.clearSub();
       dragSub = drag$
         .pipe(
           concatMap((value, index) =>
@@ -103,6 +114,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
               ? of(value).pipe(
                   tap(() => {
                     this.builderEditorComponent.setHasSelected(false);
+                    this._isDeleteResize = false;
                     this.commonService.isClickSection.next(false);
                   })
                 )
@@ -122,6 +134,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
         this.builderEditorComponent.setHasSelected(true);
         setTimeout(() => {
           this.commonService.isClickSection.next(true);
+          this._isDeleteResize = true;
         }, 200);
         if (dragSub) {
           dragSub.unsubscribe();
@@ -217,7 +230,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       }
       this.render2.removeChild(this.element, this._elementSelected);
       // this.clearSub();
-      if (this.element.contains(this.wresize)) {
+      if (this.element.contains(this.wresize) && this._isDeleteResize) {
         this.render2.removeChild(this.element, this.wresize);
         this.render2.removeChild(this.element, this.eresize);
         this.render2.removeChild(this.element, this.selected);
@@ -233,59 +246,53 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     }
   }
   initDrag(): void {
-    // 1
     const dragStart$ = fromEvent<MouseEvent>(this.element, 'mousedown');
     const dragEnd$ = fromEvent<MouseEvent>(this.document, 'mouseup');
-    const drag$ = fromEvent<MouseEvent>(this.document, 'mousemove').pipe(
-      takeUntil(dragEnd$)
-    );
-    // 2
+    const drag$ = fromEvent<MouseEvent>(this.document, 'mousemove');
     let initialX: number,
       initialY: number,
       currentX = Number(this.element.style.left.replace('px', '')) || 0,
       currentY = Number(this.element.style.top.replace('px', '')) || 0;
-
     let dragSub: Subscription;
-
-    // 3
-    const dragStartSub = dragStart$.subscribe((event: MouseEvent) => {
-      initialX = event.clientX - currentX;
-      initialY = event.clientY - currentY;
-      this.element.classList.add('free-dragging');
-
-      // 4
-      dragSub = drag$
-        .pipe(
-          concatMap((value, index) =>
-            index === 0
-              ? of(value).pipe(
-                  tap(() => {
-                    this.quickEditorComponent.setShowColor(false);
-                    this.builderEditorComponent.setHasSelected(false);
-                  })
-                )
-              : of(value)
-          )
-        )
-        .subscribe((event: MouseEvent) => {
-          event.preventDefault();
-          currentX = event.clientX - initialX;
-          currentY = event.clientY - initialY;
-          this.render2.setStyle(this.element, 'top', currentY + 'px');
-          this.render2.setStyle(this.element, 'left', currentX + 'px');
-        });
+    const mouseDrag$: Observable<{ currentY: number; currentX: number }> =
+      dragStart$.pipe(
+        switchMap((mouseDownEvent) => {
+          initialX = mouseDownEvent.clientX - currentX;
+          initialY = mouseDownEvent.clientY - currentY;
+          return drag$.pipe(
+            throttleTime(20),
+            switchMap((value, index) =>
+              index === 0
+                ? of(value).pipe(
+                    tap(() => {
+                      this.element.classList.add('free-dragging');
+                      this.quickEditorComponent.setShowColor(false);
+                      this.builderEditorComponent.setHasSelected(false);
+                    })
+                  )
+                : of(value)
+            ),
+            map((mouseMoveEvent) => {
+              mouseMoveEvent.preventDefault();
+              return {
+                currentX: mouseMoveEvent.clientX - initialX,
+                currentY: mouseMoveEvent.clientY - initialY,
+              };
+            })
+          );
+        }),
+        takeUntil(dragEnd$)
+      );
+    const dragStartSub = mouseDrag$.subscribe((pos) => {
+      this.render2.setStyle(this.element, 'top', pos.currentY + 'px');
+      this.render2.setStyle(this.element, 'left', pos.currentX + 'px');
     });
 
-    // 5
     const dragEndSub = dragEnd$.subscribe(() => {
       initialX = currentX;
       initialY = currentY;
       this.element.classList.remove('free-dragging');
       this.builderEditorComponent.setHasSelected(true);
-      this.render2.removeStyle(this.element, 'cursor');
-      if (dragSub) {
-        dragSub.unsubscribe();
-      }
     });
 
     // 6
@@ -325,6 +332,13 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     this.selected = this.render2.createElement('div');
     this.selected.classList.add('ladi-selected', 'ladi-size');
   }
+  /**
+   * @author TruongLV
+   * @email anhtruonglavm2@mail.com
+   * @create date 2021-05-27 16:55:04
+   * @modify date 2021-05-27 16:55:04
+   * @desc Delete element for resize before add other element
+   */
 
   ngOnDestroy(): void {
     this.clearSub();

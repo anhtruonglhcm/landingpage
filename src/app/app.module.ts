@@ -13,6 +13,8 @@ import { SectionDirective } from './directives/section.directive';
 import { QuickEditorComponent } from './component/quick-editor/quick-editor.component';
 import { QuickEditorDirective } from './directives/quick-editor.directive';
 import { ColorEditorComponent } from './component/quick-editor/color-editor/color-editor.component';
+import { ElementDraggingDirective } from './directives/element-dragging.directive';
+import { ElementContentDirective } from './directives/element-content.directive';
 
 @NgModule({
   declarations: [
@@ -25,6 +27,8 @@ import { ColorEditorComponent } from './component/quick-editor/color-editor/colo
     QuickEditorComponent,
     QuickEditorDirective,
     ColorEditorComponent,
+    ElementDraggingDirective,
+    ElementContentDirective
   ],
   imports: [BrowserModule, BrowserAnimationsModule, DragDropModule],
   providers: [],

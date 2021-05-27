@@ -66,6 +66,7 @@ export class SectionDirective implements OnInit, OnDestroy {
       );
       const sectionId: number = Number(this.el.nativeElement.dataset.id);
       this.builderEditorComponent.setSelectSelected(sectionId);
+      this.builderEditorComponent.setSectionSelect(this.el.nativeElement);
       this.initResize();
       const buttonAddSection = this.el.nativeElement.querySelectorAll(
         '.ladi-button-add-section'

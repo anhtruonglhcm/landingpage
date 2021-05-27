@@ -30,6 +30,8 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
   public quickEditorTop = 0;
   public quickEditorLeft = 0;
   public isDrag = true;
+  public elementSelected: HTMLElement;
+  public sectionSelected: HTMLElement;
   // public TypeElement = TypeElement;
   public MenuChildAddNew = MenuChildAddNew;
   private _selectSelectedId: number | null;
@@ -74,10 +76,50 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
     this.isDrag = isDrag;
   }
   setPositionQuickEditor(top: number, left: number) {
-    this.quickEditorTop = top;
+    let height = 0;
+    let i = 0;
+    for (; i < this._selectSelectedIndex; i++) {
+      height += this.sectionArray[i].height;
+    }
+    this.quickEditorTop = top + height;
     this.quickEditorLeft = left;
   }
 
+  /**
+   * @author TruongLV
+   * @email anhtruonglavm2@gmail.com
+   * @create date 2021-05-27 17:54:20
+   * @modify date 2021-05-27 17:54:20
+   * @desc delete element resize, size
+   */
+
+  setElementSelected(ele: HTMLElement) {
+    debugger;
+    if (this.elementSelected) {
+      const ladiResize = this.elementSelected.querySelectorAll('.ladi-resize');
+      const ladiSize = this.elementSelected.querySelectorAll('.ladi-size');
+      ladiResize.forEach((e) => e.remove());
+      ladiSize.forEach((e) => e.remove());
+    }
+    if (this.sectionSelected) {
+      const ladiResize = this.elementSelected.querySelectorAll('.ladi-resize');
+      ladiResize.forEach((e) => e.remove());
+      this.setSelectSelected = null;
+    }
+    this.elementSelected = ele;
+  }
+
+  /**
+   * @author TruongLV
+   * @email anhtruonglavm2@gmail.com
+   * @create date 2021-05-27 17:54:20
+   * @modify date 2021-05-27 17:54:20
+   * @desc set Section clicked
+   */
+
+  setSectionSelect(el: HTMLElement) {
+    this.sectionSelected = el;
+  }
   setHeightSection(height: number) {
     this.sectionArray[this._selectSelectedIndex].height = height;
   }

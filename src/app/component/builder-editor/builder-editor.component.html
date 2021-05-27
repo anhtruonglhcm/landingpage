@@ -50,9 +50,12 @@
           >
             <ng-container [ngSwitch]="itemElement.elementType">
               <ng-container *ngSwitchCase="MenuChildAddNew.BUTTON">
+                <!--  appDragging
+                  [isDrag]="isDrag" -->
                 <div
-                  [appDragging]
+                  appDragging
                   [isDrag]="isDrag"
+                  [id]="itemElement.id"
                   [attr.data-id]="'BUTTON' + itemElement.id"
                   [attr.data-sectionIndex]="indexSection"
                   [style.width.px]="itemElement.width"
@@ -127,7 +130,7 @@
               </ng-container>
               <ng-container *ngSwitchCase="MenuChildAddNew.TITLE">
                 <div
-                  [appDragging]
+                  appDragging
                   [isDrag]="isDrag"
                   id="HEADLINE3"
                   [attr.data-id]="'HEADLINE' + itemElement.id"
