@@ -5,6 +5,7 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
+import { ALIGN_ITEM_COMMAND, IAlign } from './quick-editor.constant';
 
 @Component({
   selector: 'app-quick-editor',
@@ -15,6 +16,8 @@ export class QuickEditorComponent implements OnInit, OnChanges {
   @Input('quickEditorTop') quickEditorTop: number;
   @Input('quickEditorLeft') quickEditorLeft: number;
   public isShowColor = false;
+  public isAlignItem = false;
+  public AlignItemCommand = ALIGN_ITEM_COMMAND;
   constructor() {}
 
   ngOnInit(): void {}
@@ -35,5 +38,15 @@ export class QuickEditorComponent implements OnInit, OnChanges {
   }
   setShowColor(isShow: boolean = false) {
     this.isShowColor = isShow;
+  }
+  openAlign(event: MouseEvent) {
+    console.log('openAlign');
+    event.stopPropagation();
+    this.isAlignItem = !this.isAlignItem;
+  }
+  alignItemLeft(item: IAlign, event: MouseEvent) {
+    event.stopPropagation();
+    console.log(item);
+    document.execCommand(item.command);
   }
 }

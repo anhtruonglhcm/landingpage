@@ -65,7 +65,7 @@ export class SectionDirective implements OnInit, OnDestroy {
         this._sectionResizeBottom
       );
       const sectionId: number = Number(this.el.nativeElement.dataset.id);
-      this.builderEditorComponent.setSelectSelected(sectionId);
+      // this.builderEditorComponent.setSelectSelected(sectionId);
       this.builderEditorComponent.setSectionSelect(this.el.nativeElement);
       this.initResize();
       const buttonAddSection = this.el.nativeElement.querySelectorAll(

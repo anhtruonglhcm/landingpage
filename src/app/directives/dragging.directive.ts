@@ -47,6 +47,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
   private _elemtnSectionSelected: HTMLElement;
 
   private _isDeleteResize = true;
+  private _ladiParentSubscription: Subscription;
   private _dataId: string;
   constructor(
     private elementRef: ElementRef,
@@ -83,6 +84,16 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     this.builderEditorComponent.setPositionQuickEditor(top - height - 10, left);
     if (this.isDrag) {
       this.initDrag();
+    }
+    /**
+     * @author TruongLV
+     * @email anhtruonglavm2@mail.com
+     * @create date 2021-05-27 16:55:04
+     * @modify date 2021-05-27 16:55:04
+     * @desc unsubscribe before delete ladi_parent
+     */
+    if (this._ladiParentSubscription) {
+      this._ladiParentSubscription.unsubscribe();
     }
     this.builderEditorComponent.setElementSelected(this.element);
     // this.initDrag();
@@ -286,6 +297,7 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
     const dragStartSub = mouseDrag$.subscribe((pos) => {
       this.render2.setStyle(this.element, 'top', pos.currentY + 'px');
       this.render2.setStyle(this.element, 'left', pos.currentX + 'px');
+      this.builderEditorComponent.setSnapLeft(pos.currentX);
     });
 
     const dragEndSub = dragEnd$.subscribe(() => {
@@ -304,9 +316,10 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
   }
 
   private _ladiParentSelected(sectionIndex: number) {
-    this._sectionIsSelected = document.querySelectorAll('.ladi-section')[
-      sectionIndex
-    ] as HTMLElement;
+    // this._sectionIsSelected = document.querySelectorAll('.ladi-section')[
+    //   sectionIndex
+    // ] as HTMLElement;
+    this._sectionIsSelected = this.element.parentElement;
     if (!this._elemtnSectionSelected) {
       let el = this.render2.createElement('div');
       this.render2.addClass(el, 'ladi-parent-selected');
@@ -316,6 +329,11 @@ export class DraggingDirective implements OnInit, OnChanges, OnDestroy {
       this._sectionIsSelected,
       this._elemtnSectionSelected
     );
+    // const click$ = fromEvent<MouseEvent>(this._elemtnSectionSelected, 'click');
+    // this._ladiParentSubscription = click$.subscribe((mouseEvent) => {
+    //   mouseEvent.preventDefault();
+    //   mouseEvent.stopPropagation();
+    // });
   }
 
   private _createElement() {

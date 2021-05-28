@@ -167,17 +167,24 @@
     <li
       tooltip="Căn chỉnh"
       ng-if="showEditText &amp;&amp; !showEditTextRange"
-      ng-click="clickMenuChildTextAlignCustom($event)"
+      (click)="openAlign($event)"
     >
       <i class="icon-click ladi-icon icon-align-center"></i>
-      <ul ng-class="classMenuChildTextAlignCustom()" class="builder-menu-child">
-        <li
-          ng-click="clickTextAlignLeft($event)"
-          ng-class="classTextAlignLeft()"
-        >
-          <i class="ladi-icon icon-align-left-2"></i>
-          <span translate="">Căn trái</span>
-        </li>
+      <ul
+        ng-class="classMenuChildTextAlignCustom()"
+        class="builder-menu-child"
+        [ngClass]="{ selected: isAlignItem }"
+      >
+        <ng-container *ngFor="let item of AlignItemCommand">
+          <li
+            (click)="alignItemLeft(item, $event)"
+            ng-class="classTextAlignLeft()"
+          >
+            <i class="ladi-icon" [ngClass]="item.icon"></i>
+            <span translate="">{{ item.name }}</span>
+          </li>
+        </ng-container>
+        <!-- 
         <li
           ng-click="clickTextAlignCenter($event)"
           ng-class="classTextAlignCenter()"
@@ -198,7 +205,7 @@
         >
           <i class="ladi-icon icon-align-justify"></i>
           <span translate="">Căn đều 2 bên</span>
-        </li>
+        </li> -->
       </ul>
     </li>
     <!---->

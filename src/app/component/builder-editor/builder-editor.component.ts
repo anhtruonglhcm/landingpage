@@ -18,6 +18,12 @@ import {
 import { IWigetButton } from 'src/app/models/wiget-button.model';
 import { take } from 'rxjs/operators';
 
+interface ISnap {
+  left?: number;
+  right?: number;
+  center?: number;
+}
+
 @Component({
   selector: 'app-builder-editor',
   templateUrl: './builder-editor.component.html',
@@ -25,6 +31,7 @@ import { take } from 'rxjs/operators';
 })
 export class BuilderEditorComponent implements OnInit, OnDestroy {
   @ViewChild('quickEditor', { static: true }) quickEditor: ElementRef;
+  @ViewChild('builderSnapLeft', { static: true }) builderSnapLeft: ElementRef;
   public sectionArray: ISection[] = [];
   public hasSelectedElement: boolean;
   public quickEditorTop = 0;
@@ -32,6 +39,7 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
   public isDrag = true;
   public elementSelected: HTMLElement;
   public sectionSelected: HTMLElement;
+  public snapLeft: number[] = [];
   // public TypeElement = TypeElement;
   public MenuChildAddNew = MenuChildAddNew;
   private _selectSelectedId: number | null;
@@ -50,6 +58,8 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
     this._count = 10;
     this._innerWidth = window.innerWidth;
     this.hasSelectedElement = false;
+    this.snapLeft.push((this._innerWidth - 960) / 2);
+    console.log(this.snapLeft);
   }
   ngOnDestroy(): void {
     this._subjectOnDestroy.next();
@@ -84,6 +94,40 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
     this.quickEditorTop = top + height;
     this.quickEditorLeft = left;
   }
+  setSnapLeft(left: number) {
+    let length = this.snapLeft.length;
+    let i = 0;
+    this.renderer2.setStyle(
+      this.builderSnapLeft.nativeElement,
+      'left',
+      left + 'px'
+    );
+    for (i; i < length; i++) {
+      if (
+        // this.snapLeft[i] > left
+        //   ? this.snapLeft[i] - left <= 1
+        //   : this.snapLeft[i] - left >= -1
+        this.snapLeft[i] === left
+      ) {
+        console.log(this.snapLeft[i]);
+        console.log(left);
+        this.renderer2.setStyle(
+          this.builderSnapLeft.nativeElement,
+          'left',
+          this.snapLeft[i] + 'px'
+        );
+        this.renderer2.removeClass(
+          this.builderSnapLeft.nativeElement,
+          'ladi-hidden'
+        );
+      } else {
+        this.renderer2.addClass(
+          this.builderSnapLeft.nativeElement,
+          'ladi-hidden'
+        );
+      }
+    }
+  }
 
   /**
    * @author TruongLV
@@ -94,7 +138,6 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
    */
 
   setElementSelected(ele: HTMLElement) {
-    debugger;
     if (this.elementSelected) {
       const ladiResize = this.elementSelected.querySelectorAll('.ladi-resize');
       const ladiSize = this.elementSelected.querySelectorAll('.ladi-size');
@@ -102,7 +145,7 @@ export class BuilderEditorComponent implements OnInit, OnDestroy {
       ladiSize.forEach((e) => e.remove());
     }
     if (this.sectionSelected) {
-      const ladiResize = this.elementSelected.querySelectorAll('.ladi-resize');
+      const ladiResize = this.sectionSelected.querySelectorAll('.ladi-resize');
       ladiResize.forEach((e) => e.remove());
       this.setSelectSelected = null;
     }

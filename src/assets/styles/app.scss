@@ -1029,7 +1029,7 @@ body.modal-open {
   text-align: center;
 }
 .builder-menu .builder-menu-two-column .builder-menu-child li {
-  width: 50%;
+  width: 49%;
   display: inline-block;
 }
 .builder-menu-icon-image {
@@ -1634,6 +1634,7 @@ body.modal-open {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  user-select: none;
 }
 .builder-modal-input-option-search-publish-domain-free {
   float: left;
@@ -1660,6 +1661,7 @@ body.modal-open {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  user-select: none;
 }
 .builder-modal-input-option-search-publish-free-path {
   float: left;
@@ -2001,13 +2003,13 @@ body.modal-open {
 }
 .builder-modal-input-option-search .builder-modal-input-option-column1 {
   width: calc(50% - 5px) !important;
-  display: inline-block;
+  // display: inline-block;
   border: 1px solid rgba(6, 21, 40, 0.1);
   float: left;
 }
 .builder-modal-input-option-search .builder-modal-input-option-column2 {
   width: calc(50% - 5px) !important;
-  display: inline-block;
+  // display: inline-block;
   border: 1px solid rgba(6, 21, 40, 0.1);
   float: right;
 }
@@ -3658,7 +3660,7 @@ body.modal-open {
   width: 60px;
   height: 60px;
   float: left;
-  display: inline-block;
+  // display: inline-block;
   counter-increment: linum;
 }
 .builder-attribute-editor .builder-attribute-detail-value-gallery-item::before {
@@ -4490,7 +4492,7 @@ body.modal-open {
 .ladi-icon {
   display: inline-block;
   font: normal normal normal 1em/1 LadiIcons;
-  speak: none;
+  // speak: none;
   text-transform: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
